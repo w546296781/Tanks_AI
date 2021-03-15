@@ -282,5 +282,15 @@ class Environment(tanks.Game):
         """
 
         # 状态直接返回玩家坦克的坐标
+        nearbysteel = 0
+        player_x = self.get_tanks_position()[0][0]
+        player_y = self.get_tanks_position()[0][1]
+        neighbor = [[player_x - 16, player_y - 16], [player_x, player_y - 16],[player_x + 16, player_y - 16],
+                    [player_x + 32, player_y - 16], [player_x + 32, player_y], [player_x + 32, player_y + 16],
+                    [player_x + 32, player_y + 32], [player_x + 16, player_y + 32], [player_x, player_y + 32],
+                    [player_x - 16, player_y + 32], [player_x - 16, player_y + 16], [player_x - 16, player_y]]
+        for p in self.get_steel_position():
+            if neighbor.__contains__(p):
+                nearbysteel = nearbysteel + 1
 
-        return [self.get_tanks_position()[0][0]/100-2,self.get_tanks_position()[0][1]/100-2,self.get_tanks_direction()[0]]
+        return [player_x/100 - 2, player_y/100 - 2, nearbysteel]
