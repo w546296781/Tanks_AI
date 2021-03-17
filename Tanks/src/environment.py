@@ -263,6 +263,12 @@ class Environment(tanks.Game):
         if self.lastdirc == self.get_tanks_direction()[0]:
             reward = reward + 20
 
+        #test
+        # elif abs(self.lastdirc - self.get_tanks_direction()[0]) == 2:
+        #    reward = reward - 20
+        # else:
+        #     reward = reward - 10
+
         # 击杀敌人给予奖励
         reward = reward + (100000 * self.get_killed_nums()[0])
 
