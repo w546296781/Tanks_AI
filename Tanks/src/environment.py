@@ -253,10 +253,9 @@ class Environment(tanks.Game):
 
         reward = 0
         # 击杀敌人给予奖励
-        if self.get_killed_nums()[0] > self.get_killed_nums()[1]:
-            reward = reward + 100
+        reward = reward + 1000 * self.get_killed_nums()[0]
 
-        if len(self.last_enemy_pos) != 0:
+        if len(self.last_enemy_pos) != 0 and len(cur_enemy_pos) != 0:
             cur_dis = abs(cur_player_pos[0] - cur_enemy_pos[0]) + abs(cur_player_pos[1] - cur_enemy_pos[1])
             last_dis = abs(self.last_player_pos[0] - self.last_enemy_pos[0]) + abs(
                 self.last_player_pos[1] - self.last_enemy_pos[1])
@@ -282,5 +281,14 @@ class Environment(tanks.Game):
         # 状态直接返回玩家坦克的坐标
         player_x = self.get_tanks_position()[0][0]
         player_y = self.get_tanks_position()[0][1]
+        player_dir = self.get_tanks_direction()[0]
+        enemy_x = -1
+        enemy_y = -1
+        enemy_dir = -1
+        if len(self.get_tanks_position()[1]) != 0:
+            enemy_x = self.get_tanks_position()[1][0][0]
+            enemy_y = self.get_tanks_position()[1][0][1]
+        if len(self.get_tanks_direction()[1]) != 0:
+            enemy_dir = self.get_tanks_direction()[1][0]
 
-        return [player_x / 100 - 2, player_y / 100 - 2, 0, 1]
+        return [player_x / 100 - 2, player_y / 100 - 2, player_dir, enemy_x / 100 - 2, enemy_y / 100 - 2, enemy_dir]
