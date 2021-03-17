@@ -249,16 +249,19 @@ class Environment(tanks.Game):
         # 在训练过程中，您会看到奖励会不断增加，证明坦克训练正常
         curpos = self.get_tanks_position()[0]
         reward = 0
-        if self.laststate.__contains__(curpos):
-            reward = reward - 10
-        else:
-            reward = reward + 50
+        if not self.laststate.__contains__(curpos):
+            reward = reward + 100
 
         if self.lastpos == curpos:
             reward = reward - 30
 
-        if self.lastdirc == self.get_tanks_direction()[0]:
+        if self.lastdirc == self.get_tanks_direction()[0] and self.lastpos != curpos:
             reward = reward + 20
+        # elif abs(self.lastdirc - self.get_tanks_direction()[0]) == 2:
+        #    reward = reward - 20
+        # else:
+        #     reward = reward - 10
+
         # for l in self.laststate:
         #     reward = reward + abs(l[0] - curpos[0]) - 5
         #     reward = reward + abs(l[1] - curpos[1]) - 5
@@ -285,12 +288,34 @@ class Environment(tanks.Game):
         nearbysteel = 0
         player_x = self.get_tanks_position()[0][0]
         player_y = self.get_tanks_position()[0][1]
-        neighbor = [[player_x - 16, player_y - 16], [player_x, player_y - 16],[player_x + 16, player_y - 16],
-                    [player_x + 32, player_y - 16], [player_x + 32, player_y], [player_x + 32, player_y + 16],
-                    [player_x + 32, player_y + 32], [player_x + 16, player_y + 32], [player_x, player_y + 32],
-                    [player_x - 16, player_y + 32], [player_x - 16, player_y + 16], [player_x - 16, player_y]]
-        for p in self.get_steel_position():
-            if neighbor.__contains__(p):
-                nearbysteel = nearbysteel + 1
+        # neighbor = [[player_x - 16, player_y - 16], [player_x, player_y - 16],[player_x + 16, player_y - 16],
+        #             [player_x + 32, player_y - 16], [player_x + 32, player_y], [player_x + 32, player_y + 16],
+        #             [player_x + 32, player_y + 32], [player_x + 16, player_y + 32], [player_x, player_y + 32],
+        #             [player_x - 16, player_y + 32], [player_x - 16, player_y + 16], [player_x - 16, player_y]]
+        # for p in self.get_steel_position():
+        #     if neighbor.__contains__(p):
+        #         nearbysteel = nearbysteel + 1
 
-        return [player_x/100 - 2, player_y/100 - 2, nearbysteel]
+        player_dir = self.get_tanks_direction()[0]
+        if player_dir == 0:
+            min_collison_dis = player_y
+            for p in self.get_steel_position():
+                if player_x < p[0] < player_x + 28 and p[1] + 16 <= player_y:
+                    min_collison_dis = min(min_collison_dis, player_y - p[1] - 16)
+        if player_dir == 1:
+            min_collison_dis = 480 - 32 - player_x
+            for p in self.get_steel_position():
+                if player_y < p[1] < player_y + 28 and p[0] >= player_x + 32:
+                    min_collison_dis = min(min_collison_dis, p[0] - player_x - 32)
+        if player_dir == 2:
+            min_collison_dis = 416 - 32 - player_y
+            for p in self.get_steel_position():
+                if player_x < p[0] < player_x + 28 and p[1] >= player_y + 32:
+                    min_collison_dis = min(min_collison_dis, p[1] - player_y - 32)
+        if player_dir == 3:
+            min_collison_dis = player_x
+            for p in self.get_steel_position():
+                if player_y < p[1] < player_y + 28 and p[0] + 16 <= player_x:
+                    min_collison_dis = min(min_collison_dis, player_x - p[0] - 16)
+        # print(min_collison_dis)
+        return [player_x/100 - 2, player_y/100 - 2, min_collison_dis]
