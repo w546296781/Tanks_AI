@@ -251,6 +251,7 @@ class Environment(tanks.Game):
         else:
             cur_enemy_pos = []
 
+        cur_player_dir = self.get_tanks_direction()[0]
         reward = 0
 
         # 奖励探索未探索的坐标
@@ -260,14 +261,12 @@ class Environment(tanks.Game):
             reward = reward + 50
 
         # 奖励直行
-        if self.lastdirc == self.get_tanks_direction()[0]:
+        if self.lastdirc == cur_player_dir:
             reward = reward + 20
 
-        #test
-        # elif abs(self.lastdirc - self.get_tanks_direction()[0]) == 2:
-        #    reward = reward - 20
-        # else:
-        #     reward = reward - 10
+        # test
+        if cur_player_pos == self.last_player_pos:
+            reward = reward - 50
 
         # 击杀敌人给予奖励
         reward = reward + (100000 * self.get_killed_nums()[0])
@@ -279,9 +278,25 @@ class Environment(tanks.Game):
                 self.last_player_pos[1] - self.last_enemy_pos[1])
             reward = reward + (last_dis - cur_dis) * 100
 
+            # 与敌人的x或y坐标相同时，朝向敌人给与奖励
+            if cur_player_pos[0] == cur_enemy_pos[0]:
+                if cur_player_pos[1] > cur_enemy_pos[1] and cur_player_dir == 0:
+                    reward = reward + 100
+                elif cur_player_pos[1] < cur_enemy_pos[1] and cur_player_dir == 2:
+                    reward = reward + 100
+                else:
+                    reward = reward - 100
+            if cur_player_pos[1] == cur_enemy_pos[1]:
+                if cur_player_pos[0] > cur_enemy_pos[0] and cur_player_dir == 3:
+                    reward = reward + 100
+                elif cur_player_pos[0] < cur_enemy_pos[0] and cur_player_dir == 1:
+                    reward = reward + 100
+                else:
+                    reward = reward - 100
+
         self.last_player_pos = cur_player_pos
         self.last_enemy_pos = cur_enemy_pos
-        self.lastdirc = self.get_tanks_direction()[0]
+        self.lastdirc = cur_player_dir
         self.laststate.append(cur_player_pos)
 
         return reward
