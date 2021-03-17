@@ -264,14 +264,14 @@ class Environment(tanks.Game):
             reward = reward + 20
 
         # 击杀敌人给予奖励
-        reward = reward + 10000 * self.get_killed_nums()[0]
+        reward = reward + (100000 * self.get_killed_nums()[0])
 
         # 靠近敌人给予奖励，反之惩罚
         if len(self.last_enemy_pos) != 0 and len(cur_enemy_pos) != 0:
             cur_dis = abs(cur_player_pos[0] - cur_enemy_pos[0]) + abs(cur_player_pos[1] - cur_enemy_pos[1])
             last_dis = abs(self.last_player_pos[0] - self.last_enemy_pos[0]) + abs(
                 self.last_player_pos[1] - self.last_enemy_pos[1])
-            reward = reward + (last_dis - cur_dis) * 10
+            reward = reward + (last_dis - cur_dis) * 100
 
         self.last_player_pos = cur_player_pos
         self.last_enemy_pos = cur_enemy_pos
@@ -291,7 +291,7 @@ class Environment(tanks.Game):
         :return: List of numbers
         """
 
-        # 状态直接返回玩家坦克的坐标
+        # 玩家和敌人坦克的坐标和方向
         player_x = self.get_tanks_position()[0][0]
         player_y = self.get_tanks_position()[0][1]
         player_dir = self.get_tanks_direction()[0]
