@@ -5,9 +5,9 @@ import tanks
 import pygame
 import random
 
-EPS = 16 # 一个格子的大小
+EPS = 16  # 一个格子的大小
 WIDTH, HEIGHT = 480 // EPS - 4, 416 // EPS
-    
+
 
 class Environment(tanks.Game):
     """
@@ -61,7 +61,6 @@ class Environment(tanks.Game):
         self._init()
         self.action_logs = [-1] * 10
 
-
     def _step(self, action):
         """
         运行Agent采取的行动，并反馈采取行动后环境的状态，该动作对应的奖励以及游戏是否结束
@@ -75,7 +74,7 @@ class Environment(tanks.Game):
         done: 1/0/True/False, 游戏是否结束
         """
         self.kill = 0
-        time_passed = self.clock.tick(50*tanks.quick)
+        time_passed = self.clock.tick(50 * tanks.quick)
         # make player invulnerable
         self.shieldPlayer(tanks.players[0], True, None)
 
@@ -86,7 +85,7 @@ class Environment(tanks.Game):
         # if self.show:
         #     for _ in pygame.event.get():
         #         pass
-        
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit(0)
@@ -160,7 +159,6 @@ class Environment(tanks.Game):
                 print(f'_get_state 函数的输出的state的内容必须都是数字，你的输出包含 {type(item)}!')
                 exit(0)
 
-
     def get_action_logs(self):
         """
         返回动作的历史记录（前20步，包括本次动作，即本次动作的编号是列表的最后一个元素）
@@ -221,7 +219,6 @@ class Environment(tanks.Game):
         steel_pos = [tile.topleft for tile in self.level.mapr if tile.type == self.level.TILE_STEEL]
         return steel_pos
 
-
     def _init(self):
         """
         你需要修改这个部分
@@ -231,9 +228,10 @@ class Environment(tanks.Game):
         你可以根据自己的想法修改这个函数中的变量，以及添加/删除其他的变量。
         """
 
-        self.laststate = [[self.get_tanks_position()[0][0],self.get_tanks_position()[0][1]],]
-        self.lastpos = self.get_tanks_direction()[0];
-        self.lastdirc = self.get_tanks_direction()[0];
+        self.laststate = [[self.get_tanks_position()[0][0], self.get_tanks_position()[0][1]], ]
+        self.last_player_pos = self.get_tanks_position()[0]
+        self.last_enemy_pos = []
+        self.lastdirc = self.get_tanks_direction()[0]
 
     def _get_reward(self):
         """
@@ -247,26 +245,26 @@ class Environment(tanks.Game):
         # 本奖励函数思想：走得离前20步越远越好。越近奖励越低
         # 如果采用这个奖励函数，您最后看到的训练效果，会是坦克上下移动或者在顶部左右移动，来使得自己的奖励最大化
         # 在训练过程中，您会看到奖励会不断增加，证明坦克训练正常
-        curpos = self.get_tanks_position()[0]
-        reward = 0
-        if self.laststate.__contains__(curpos):
-            reward = reward - 10
+        cur_player_pos = self.get_tanks_position()[0]
+        if len(self.get_tanks_position()[1]) != 0:
+            cur_enemy_pos = self.get_tanks_position()[1][0]
         else:
-            reward = reward + 50
+            cur_enemy_pos = []
 
-        # if self.lastpos == curpos:
-            # reward = reward - 30
+        reward = 0
+        # 击杀敌人给予奖励
+        if self.get_killed_nums()[0] > self.get_killed_nums()[1]:
+            reward = reward + 100
 
-        if self.lastdirc == self.get_tanks_direction()[0]:
-            reward = reward + 20
-        # for l in self.laststate:
-        #     reward = reward + abs(l[0] - curpos[0]) - 5
-        #     reward = reward + abs(l[1] - curpos[1]) - 5
-        self.laststate.append(curpos)
-        self.lastpos = curpos
-        self.lastdirc = self.get_tanks_direction()[0]
-        while len(self.laststate) > 200:
-            self.laststate.pop(0)
+        if len(self.last_enemy_pos) != 0:
+            cur_dis = abs(cur_player_pos[0] - cur_enemy_pos[0]) + abs(cur_player_pos[1] - cur_enemy_pos[1])
+            last_dis = abs(self.last_player_pos[0] - self.last_enemy_pos[0]) + abs(
+                self.last_player_pos[1] - self.last_enemy_pos[1])
+            # 靠近敌人给予奖励，反之惩罚
+            reward = reward + last_dis - cur_dis
+
+        self.last_player_pos = cur_player_pos
+        self.last_enemy_pos = cur_enemy_pos
 
         return reward
 
@@ -282,37 +280,7 @@ class Environment(tanks.Game):
         """
 
         # 状态直接返回玩家坦克的坐标
-        nearbysteel = 0
         player_x = self.get_tanks_position()[0][0]
         player_y = self.get_tanks_position()[0][1]
-        # neighbor = [[player_x - 16, player_y - 16], [player_x, player_y - 16],[player_x + 16, player_y - 16],
-        #             [player_x + 32, player_y - 16], [player_x + 32, player_y], [player_x + 32, player_y + 16],
-        #             [player_x + 32, player_y + 32], [player_x + 16, player_y + 32], [player_x, player_y + 32],
-        #             [player_x - 16, player_y + 32], [player_x - 16, player_y + 16], [player_x - 16, player_y]]
-        # for p in self.get_steel_position():
-        #     if neighbor.__contains__(p):
-        #         nearbysteel = nearbysteel + 1
 
-        player_dir = self.get_tanks_direction()[0]
-        if player_dir == 0:
-            min_collison_dis = player_y
-            for p in self.get_steel_position():
-                if player_x < p[0] < player_x + 28 and p[1] + 16 <= player_y:
-                    min_collison_dis = min(min_collison_dis, player_y - p[1] - 16)
-        if player_dir == 1:
-            min_collison_dis = 480 - 32 - player_x
-            for p in self.get_steel_position():
-                if player_y < p[1] < player_y + 28 and p[0] >= player_x + 32:
-                    min_collison_dis = min(min_collison_dis, p[0] - player_x - 32)
-        if player_dir == 2:
-            min_collison_dis = 416 - 32 - player_y
-            for p in self.get_steel_position():
-                if player_x < p[0] < player_x + 28 and p[1] >= player_y + 32:
-                    min_collison_dis = min(min_collison_dis, p[1] - player_y - 32)
-        if player_dir == 3:
-            min_collison_dis = player_x
-            for p in self.get_steel_position():
-                if player_y < p[1] < player_y + 28 and p[0] + 16 <= player_x:
-                    min_collison_dis = min(min_collison_dis, player_x - p[0] - 16)
-        # print(min_collison_dis)
-        return [player_x/100 - 2, player_y/100 - 2]
+        return [player_x / 100 - 2, player_y / 100 - 2, 0, 1]

@@ -177,10 +177,10 @@ def train(task='explore', test=False, save=10, show=10, **kwargs):
 
 if __name__ == '__main__':
     config = {
-        'task': 'explore',
+        'task': 'play',
         'test': False,
-        'save': 5,
-        'show': 5,
+        'save': 1,
+        'show': 1,
         'continue_last_train': True,
     }  # 参数的说明在 train 函数中
 
