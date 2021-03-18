@@ -269,7 +269,8 @@ class Environment(tanks.Game):
             reward = reward - 50
 
         # 击杀敌人给予奖励
-        reward = reward + (100000 * self.get_killed_nums()[0])
+        if self.get_killed_nums()[0] != 0:
+            reward = reward + (1000000 * self.get_killed_nums()[0])
 
         # 靠近敌人给予奖励，反之惩罚
         if len(self.last_enemy_pos) != 0 and len(cur_enemy_pos) != 0:
