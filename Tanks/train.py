@@ -179,8 +179,8 @@ if __name__ == '__main__':
     config = {
         'task': 'explore',
         'test': False,
-        'save': 100,
-        'show': 100,
+        'save': 5,
+        'show': 5,
         'continue_last_train': True,
     }  # 参数的说明在 train 函数中
 
