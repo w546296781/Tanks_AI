@@ -275,7 +275,6 @@ class Environment(tanks.Game):
                 self.last_player_pos[1] - self.last_enemy_pos[1])
             reward = reward + (last_dis - cur_dis) * 500
 
-
         self.last_player_pos = cur_player_pos
         self.last_enemy_pos = cur_enemy_pos
         self.lastdirc = cur_player_dir
@@ -307,6 +306,8 @@ class Environment(tanks.Game):
         if len(self.get_tanks_direction()[1]) != 0:
             enemy_dir = self.get_tanks_direction()[1][0]
 
+        # (test) 玩家坦克面朝方向距离最近砖块或地图边界的距离
+        """
         if player_dir == 0:
             min_collison_dis = player_y
             for p in self.get_steel_position():
@@ -327,5 +328,6 @@ class Environment(tanks.Game):
             for p in self.get_steel_position():
                 if player_y < p[1] < player_y + 28 and p[0] + 16 <= player_x:
                     min_collison_dis = min(min_collison_dis, player_x - p[0] - 16)
+        """
 
-        return [player_x / 100 - 2, player_y / 100 - 2, player_dir, enemy_x / 100 - 2, enemy_y / 100 - 2, enemy_dir, min_collison_dis / 100 - 2]
+        return [player_x / 100 - 2, player_y / 100 - 2, player_dir, enemy_x / 100 - 2, enemy_y / 100 - 2, enemy_dir]

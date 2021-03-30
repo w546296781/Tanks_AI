@@ -107,7 +107,7 @@ def train(task='explore', test=False, save=10, show=10, **kwargs):
         enemy_num = 0
     else:
         batch_size = 1024
-        max_step = 1024 * 2
+        max_step = 1024
         enemy_num = 5
 
     batch = {'obs': [], 'acts': [], 'weights': [], 'rets': [], 'lens': []}
@@ -179,8 +179,8 @@ if __name__ == '__main__':
     config = {
         'task': 'explore',
         'test': False,
-        'save': 5,
-        'show': 5,
+        'save': 100,
+        'show': 100,
         'continue_last_train': True,
     }  # 参数的说明在 train 函数中
 
