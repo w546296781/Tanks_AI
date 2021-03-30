@@ -264,6 +264,10 @@ class Environment(tanks.Game):
         if self.lastdirc == cur_player_dir:
             reward = reward + 20
 
+        # (test)惩罚原地停留
+        # if self.last_player_pos == cur_player_pos:
+        # reward = reward - 30
+
         # 击杀敌人给予奖励
         if self.get_killed_nums()[0] != 0:
             reward = reward + (700000 * self.get_killed_nums()[0])
@@ -274,6 +278,24 @@ class Environment(tanks.Game):
             last_dis = abs(self.last_player_pos[0] - self.last_enemy_pos[0]) + abs(
                 self.last_player_pos[1] - self.last_enemy_pos[1])
             reward = reward + (last_dis - cur_dis) * 500
+
+        # (test)与敌人的x或y坐标相同时，朝向敌人给与奖励
+        """
+        if cur_player_pos[0] == cur_enemy_pos[0]:
+            if cur_player_pos[1] > cur_enemy_pos[1] and cur_player_dir == 0:
+                reward = reward + 100
+            elif cur_player_pos[1] < cur_enemy_pos[1] and cur_player_dir == 2:
+                reward = reward + 100
+            else:
+                reward = reward - 100
+        if cur_player_pos[1] == cur_enemy_pos[1]:
+            if cur_player_pos[0] > cur_enemy_pos[0] and cur_player_dir == 3:
+                reward = reward + 100
+            elif cur_player_pos[0] < cur_enemy_pos[0] and cur_player_dir == 1:
+                reward = reward + 100
+            else:
+                reward = reward - 100
+        """
 
         self.last_player_pos = cur_player_pos
         self.last_enemy_pos = cur_enemy_pos
@@ -306,6 +328,20 @@ class Environment(tanks.Game):
         if len(self.get_tanks_direction()[1]) != 0:
             enemy_dir = self.get_tanks_direction()[1][0]
 
+        # (test) 玩家坦克周围砖块数量
+        """
+        nearbysteel = 0
+        player_x = self.get_tanks_position()[0][0]
+        player_y = self.get_tanks_position()[0][1]
+        neighbor = [[player_x - 16, player_y - 16], [player_x, player_y - 16],[player_x + 16, player_y - 16],
+                    [player_x + 32, player_y - 16], [player_x + 32, player_y], [player_x + 32, player_y + 16],
+                    [player_x + 32, player_y + 32], [player_x + 16, player_y + 32], [player_x, player_y + 32],
+                    [player_x - 16, player_y + 32], [player_x - 16, player_y + 16], [player_x - 16, player_y]]
+        for p in self.get_steel_position():
+            if neighbor.__contains__(p):
+                nearbysteel = nearbysteel + 1
+        """
+
         # (test) 玩家坦克面朝方向距离最近砖块或地图边界的距离
         """
         if player_dir == 0:
@@ -329,5 +365,6 @@ class Environment(tanks.Game):
                 if player_y < p[1] < player_y + 28 and p[0] + 16 <= player_x:
                     min_collison_dis = min(min_collison_dis, player_x - p[0] - 16)
         """
+
 
         return [player_x / 100 - 2, player_y / 100 - 2, player_dir, enemy_x / 100 - 2, enemy_y / 100 - 2, enemy_dir]
